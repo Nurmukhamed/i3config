@@ -102,6 +102,33 @@ RUN git clone https://github.com/ogham/exa.git &&\
     just man &&\ 
     cargo deb -p exa
 
+# Compile and build debian package for ripgrep
+FROM ubuntu:20.04 as ripgrep
+
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update -qq &&\
+    apt-get -y install build-essential &&\
+    apt-get -y install curl wget git libgit2-dev cmake libz-dev pandoc \
+    asciidoctor zsh xz-utils liblz4-tool musl-tools tree
+
+WORKDIR /build
+
+RUN curl https://sh.rustup.rs -sSf | \
+    sh -s -- --default-toolchain stable -y
+
+ENV PATH=/root/.cargo/bin:$PATH
+
+RUN git clone https://github.com/BurntSushi/ripgrep &&\
+    cd ripgrep &&\
+    cargo install cargo-deb &&\
+    cargo build --release &&\
+    mkdir -p ./deployment/deb &&\
+    find ./target -name rg.1 -exec cp {} ./deployment/deb \; &&\ 
+    find ./target -name rg.bash -exec cp {} ./deployment/deb \; &&\ 
+    find ./target -name rg.fish -exec cp {} ./deployment/deb \; &&\ 
+    cp ./complete/_rg ./deployment/deb &&\
+    cargo deb -p ripgrep
+
 FROM ubuntu:20.04 as final
 WORKDIR /debs
 COPY --from=alacritty /build/alacritty/target/debian/alacritty_*.deb .
@@ -109,3 +136,4 @@ COPY --from=batcat /build/bat/target/debian/bat_*.deb .
 COPY --from=broot /build/broot/target/debian/broot_*.deb .
 COPY --from=dust /build/dust/target/debian/du-dust_*.deb .
 COPY --from=exa /build/exa/target/debian/exa_*.deb .
+COPY --from=ripgrep /build/ripgrep/target/debian/ripgrep_*.deb .
