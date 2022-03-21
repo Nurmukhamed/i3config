@@ -80,6 +80,27 @@ RUN git clone https://github.com/bootandy/dust &&\
     cargo install cargo-deb &&\
     cargo deb -p du-dust
 
+# Compile and build debian package for exa
+FROM ubuntu:20.04 as exa
+
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update -qq &&\
+    apt-get -y install build-essential &&\
+    apt-get -y install curl wget git libgit2-dev cmake libz-dev pandoc
+
+WORKDIR /build
+
+RUN curl https://sh.rustup.rs -sSf | \
+    sh -s -- --default-toolchain stable -y
+
+ENV PATH=/root/.cargo/bin:$PATH
+
+RUN git clone https://github.com/ogham/exa.git &&\
+    cd exa &&\
+    cargo install cargo-deb &&\
+    cargo install just &&\
+    just man &&\ 
+    cargo deb -p exa
 
 FROM ubuntu:20.04 as final
 WORKDIR /debs
@@ -87,3 +108,4 @@ COPY --from=alacritty /build/alacritty/target/debian/alacritty_*.deb .
 COPY --from=batcat /build/bat/target/debian/bat_*.deb .
 COPY --from=broot /build/broot/target/debian/broot_*.deb .
 COPY --from=dust /build/dust/target/debian/du-dust_*.deb .
+COPY --from=exa /build/exa/target/debian/exa_*.deb .
