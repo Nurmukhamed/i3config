@@ -40,7 +40,28 @@ RUN git clone https://github.com/sharkdp/bat &&\
     cargo install --locked bat &&\
     cargo deb -p bat
 
+# Compile and build debian package for bat
+FROM ubuntu:20.04 as broot
+
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update -qq &&\
+    apt-get -y install build-essential &&\
+    apt-get -y install curl wget git
+
+WORKDIR /build
+
+RUN curl https://sh.rustup.rs -sSf | \
+    sh -s -- --default-toolchain stable -y
+
+ENV PATH=/root/.cargo/bin:$PATH
+
+RUN git clone https://github.com/Canop/broot &&\
+    cd broot &&\
+    cargo install cargo-deb &&\
+    cargo deb -p broot
+
 FROM ubuntu:20.04 as final
 WORKDIR /debs
 COPY --from=alacritty /build/alacritty/target/debian/alacritty_*.deb .
 COPY --from=batcat /build/bat/target/debian/bat_*.deb .
+COPY --from=broot /build/broot/target/debian/broot_*.deb .
