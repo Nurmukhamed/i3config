@@ -15,7 +15,7 @@ A number of [rust programs](https://www.linux.org.ru/forum/talks/15282317) are a
 * [i3status-rust](https://github.com/greshake/i3status-rust)
 * [zellij](https://github.com/zellij-org/zellij)
 
-For convenience, I created a Docker image. Packages are assembled inside the image and laid out in ./packages
+For convenience, I created a Docker image. Packages are assembled inside the image and laid out in ./packages. On my computer (i7-4790K, 16GB RAM, SSD) build time is 47m15s.
 
 ```
 cd ./docker
@@ -72,7 +72,7 @@ ansible-playbook ./ansible-playbook/main.yaml
 * [i3status-rust](https://github.com/greshake/i3status-rust)
 * [zellij](https://github.com/zellij-org/zellij)
 
-Для удобства создал Docker-образ. Внутри образа происходит сборка пакетов и выкладывается в ./packages
+Для удобства создал Docker-образ. Внутри образа происходит сборка пакетов и выкладывается в ./packages. На моем компьютере (i7-4790K, 16GB RAM, SSD) сборка заняла 47 минут 15 секунд.
 
 ```
 cd ./docker
