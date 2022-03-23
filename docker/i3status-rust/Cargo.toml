@@ -1,0 +1,76 @@
+[package]
+name = "i3status-rs"
+description = "A feature-rich and resource-friendly replacement for i3status, written in Rust."
+repository = "https://github.com/greshake/i3status-rust/"
+readme = "README.md"
+license = "GPL-3.0-only"
+version = "0.21.8"
+authors = ["Kai Greshake <development@kai-greshake.de>",
+           "Contributors on GitHub (https://github.com/greshake/i3status-rust/graphs/contributors)"]
+edition = "2018"
+
+[features]
+default = ["pulseaudio"]
+pulseaudio = ["libpulse-binding"]
+# Make widgets' borders visible. (for debugging purposes)
+debug_borders = []
+
+[dependencies]
+crossbeam-channel = "0.5"
+curl = "0.4"
+dbus = "0.9"
+dbus-tree = "0.9"
+lazy_static = "1.0"
+nix = "0.23.0"
+neli-wifi = "0.3"
+sensors = "0.2.2"
+serde = "1.0"
+serde_derive = "1.0"
+serde_json = "1.0"
+shellexpand = "2.1"
+signal-hook = "0.3"
+swayipc = "3.0"
+toml = "0.5"
+
+# Optional features/blocks
+libpulse-binding = { optional = true, version = "2.0", default-features = false }
+notmuch = { optional = true, version = "0.7.0" }
+maildir = { optional = true, version = "0.6" }
+
+[dependencies.chrono]
+version = "0.4"
+features = ["unstable-locales"]
+
+[dependencies.chrono-tz]
+version = "0.6"
+features = ["serde"]
+
+[dependencies.clap]
+version = "2.31"
+default-features = false
+
+[dependencies.inotify]
+version = "0.10"
+default-features = false
+
+[dependencies.regex]
+version = "1.5"
+default-features = false
+features = ["std"]
+
+[dev-dependencies]
+assert_fs = "1.0"
+
+[package.metadata.deb]
+depends = "$auto"
+license-file = ["LICENSE", "4"]
+assets = [
+  ["man/i3status-rs.1", "usr/share/man/man1/i3status-rs.1", "644"],
+  ["target/release/i3status-rs", "usr/bin/i3status-rs", "755"],
+  ["NEWS.md", "usr/share/doc/i3status-rs/NEWS.md", "644"],
+  ["README.md", "usr/share/doc/i3status-rs/README.md", "644"],
+  ["install.sh", "usr/share/i3status-rs/", "644"],
+  ["files/icons/*", "usr/share/i3status-rs/files/icons/", "644"],
+  ["files/themes/*", "usr/share/i3status-rs/files/themes/", "644"],
+  ["doc/*", "usr/share/doc/i3status-rs/", "644"],
+]
