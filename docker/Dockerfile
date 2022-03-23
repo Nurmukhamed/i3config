@@ -144,17 +144,52 @@ RUN curl https://sh.rustup.rs -sSf | \
 
 ENV PATH=/root/.cargo/bin:$PATH
 
-RUN git clone https://github.com/greshake/i3status-rust &&\
-    cd i3status-rust &&\
-    cargo build --release &&\
-    ls -al . ./target ./target/release 
+RUN git clone https://github.com/greshake/i3status-rust
+
+COPY ./i3status-rust/Cargo.toml ./i3status-rust/
+COPY ./i3status-rust/install.sh ./i3status-rust/
+
+RUN cd i3status-rust &&\
+    ./man/generate.sh &&\
+    cargo install cargo-deb &&\
+    cargo deb -p i3status-rs &&\
+    ls -al . ./target  
+
+# Compile and build debian package for zellij
+FROM ubuntu:20.04 as zellij
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update -qq &&\
+    apt-get -y install build-essential &&\
+    apt-get -y install curl wget git 
+
+RUN addgroup --system nixbld && \
+  adduser --home /home/nix --disabled-password --gecos "" --shell /bin/bash nix && \
+  adduser nix nixbld && \
+  mkdir -m 0755 /nix && chown nix /nix && \
+  mkdir -p /etc/nix && echo 'sandbox = false' > /etc/nix/nix.conf
+
+WORKDIR /home/nix
+USER nix
+ENV USER=nix
+
+RUN touch .bash_profile && \
+     wget https://nixos.org/nix/install &&\
+     sh ./install --no-daemon
+
+RUN mkdir -p $HOME/.config/nix/ &&\
+    echo "experimental-features = nix-command flakes" | tee $HOME/.config/nix/nix.conf &&\
+    . /home/nix/.nix-profile/etc/profile.d/nix.sh && \
+    nix bundle --bundler github:NixOS/bundlers#toDEB "github:zellij-org/zellij#zellij-native"
 
 FROM ubuntu:20.04 as final
-WORKDIR /debs
+WORKDIR /packages
 COPY --from=alacritty /build/alacritty/target/debian/alacritty_*.deb .
 COPY --from=batcat /build/bat/target/debian/bat_*.deb .
 COPY --from=broot /build/broot/target/debian/broot_*.deb .
 COPY --from=dust /build/dust/target/debian/du-dust_*.deb .
 COPY --from=exa /build/exa/target/debian/exa_*.deb .
 COPY --from=ripgrep /build/ripgrep/target/debian/ripgrep_*.deb .
-COPY --from=i3status /build/i3status-rust/target/release/i3status-rust .
+COPY --from=i3status /build/i3status-rust/target/debian/i3status-rs_*.deb .
+COPY --from=zellij /home/nix/deb-single-zellij-bin-zellij/zellij-bin-zellij_1.0_amd64.deb .
