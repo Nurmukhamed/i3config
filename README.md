@@ -20,7 +20,7 @@ For convenience, I created a Docker image. Packages are assembled inside the ima
 ```
 cd ./docker
 mkdir ./packages
-docker build -v $(pwd)/packages:/packages -t .
+bash ./run.sh
 ls -al ./packages
 ```
 
@@ -30,6 +30,8 @@ Fonts used
 [JetBrains Mono](https://www.jetbrains.com/ru-ru/lp/mono/)
 
 ## Ansible
+
+**TODO**
 To facilitate reuse, I wrote ansible playbook.
 
 ### Prepare
@@ -75,7 +77,7 @@ ansible-playbook ./ansible-playbook/main.yaml
 ```
 cd ./docker
 mkdir ./packages
-docker build -v $(pwd)/packages:/packages -t .
+bash ./run.sh
 ls -al ./packages
 ```
 
@@ -84,6 +86,8 @@ ls -al ./packages
 [JetBrains Mono](https://www.jetbrains.com/ru-ru/lp/mono/)
 
 ## Ansible
+
+**TODO**
 
 Для облегчения повторного использования написал ansible плейбук.
 
@@ -107,3 +111,5 @@ python3 -m pip install ansible ansible-lint
 cd ~/git/i3config
 ansible-playbook ./ansible-playbook/main.yaml
 ```
+
+![](https://i.imgur.com/khiyp9L.png)
