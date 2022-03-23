@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+xset +fp $HOME/.local/share/fonts
+xset fp rehash
+
+killall -q polybar-git
+
+echo "---" | tee -a /tmp/polybar1.log
+/snap/bin/polybar-git -q -c $HOME/snap/polybar-git/7/.config/polybar/config example 2>&1 | tee -a /tmp/polybar1.log & disown
+
+echo "Bars launched..."
