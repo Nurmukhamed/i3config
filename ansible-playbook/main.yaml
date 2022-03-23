@@ -1,0 +1,22 @@
+---
+- hosts: localhost
+  connection: local
+  name: "Install i3wm, rust applications, fonts"
+
+  tasks:
+#
+# TODO: Do it later
+#  - name: "Install i3wm"
+#    include_tasks: i3wm.yaml
+#    become: true
+#
+#  TODO: Do it later
+#  - name: "Install rust applications"
+#    include_tasks: rust.yaml
+#    become: true
+
+  - name: "Install nerdfonts"
+    include_tasks: nerdfonts.yaml
+
+  - name: "Install jetbrainsmonofonts"
+    include_tasks: jetbrainsmonofonts.yaml

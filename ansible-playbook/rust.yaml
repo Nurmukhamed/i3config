@@ -1,0 +1,68 @@
+---
+# Collection of rust applications are taken from here
+# https://www.linux.org.ru/forum/talks/15282317
+#
+- name: Install Alacritty
+  block:
+    - name: download
+
+    - name: install
+    - name: setup
+    - name: clean
+
+- name: Install bat
+  block:
+    - name: download
+    - name: install
+    - name: setup
+    - name: clean
+
+- name: Install broot
+  block:
+    - name: download
+    - name: install
+    - name: setup
+    - name: clean
+
+- name: Install dust
+  block:
+    - name: download
+    - name: install
+    - name: setup
+    - name: clean
+
+- name: Install exa
+  block:
+    - name: download
+    - name: install
+    - name: setup
+    - name: clean
+
+- name: Install rg
+  block:
+    - name: download
+    - name: install
+    - name: setup
+    - name: clean
+
+- name: Install starship
+  block:
+    - name: download
+    - name: install
+    - name: setup
+    - name: clean
+
+- name: Install i3status-rust
+  block:
+    - name: download
+    - name: install
+    - name: setup
+    - name: clean
+
+- name: Install zellij
+  block:
+    - name: download
+    - name: install
+    - name: setup
+    - name: clean
+

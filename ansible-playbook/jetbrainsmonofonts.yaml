@@ -1,0 +1,34 @@
+---
+# Copied from https://gist.github.com/matthewjberger/7dd7e079f282f8138a9dc3b045ebefa0
+# Author: https://gist.github.com/vadviktor
+- name: Update from git
+  ansible.builtin.git:
+    repo: "https://github.com/JetBrains/JetBrainsMono"
+    dest: "{{ ansible_env.HOME }}/jetbrainsmono-fonts"
+    depth: 1
+    force: yes
+
+- name: Select fonts to install
+  ansible.builtin.find:
+    recurse: yes
+    use_regex: yes
+    paths: "{{ ansible_env.HOME }}/jetbrainsmono-fonts/fonts"
+    patterns:
+      - '^.*?((?!Windows).)*?\.ttf$'
+      - '^.*?((?!Windows).)*?\.otf$'
+  register: fonts_to_install
+
+#- debug: var=fonts_to_install
+
+- ansible.builtin.copy:
+    dest: "{{ ansible_env.HOME }}/.local/share/fonts/{{ item.path | basename }}"
+    src: "{{ item.path }}"
+    remote_src: yes
+  loop: "{{ fonts_to_install.files }}"
+  notify:
+    - update font cache
+
+- name: Recursively remove temporary directory 
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/jetbrainsmono-fonts"
+    state: absent
