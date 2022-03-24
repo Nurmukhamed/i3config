@@ -155,8 +155,8 @@ RUN cd i3status-rust &&\
     cargo deb -p i3status-rs &&\
     ls -al . ./target  
 
-# Compile and build debian package for zellij
-FROM ubuntu:20.04 as zellij
+# Compile and build debian nix package for zellij
+FROM ubuntu:20.04 as zellij-nix
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -181,7 +181,86 @@ RUN touch .bash_profile && \
 RUN mkdir -p $HOME/.config/nix/ &&\
     echo "experimental-features = nix-command flakes" | tee $HOME/.config/nix/nix.conf &&\
     . /home/nix/.nix-profile/etc/profile.d/nix.sh && \
-    nix bundle --bundler github:NixOS/bundlers#toDEB "github:zellij-org/zellij#zellij-native"
+    nix bundle --bundler github:NixOS/bundlers#toDEB "github:zellij-org/zellij/?v26.1#zellij-native"
+
+# Compile and build zellij
+FROM ubuntu:20.04 as zellij-build
+
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update -qq &&\
+    apt-get -y install build-essential &&\
+    apt-get -y install curl wget git libdbus-1-dev libpulse-dev libsensors-dev libnotmuch-dev libssl-dev pandoc musl-tools
+
+WORKDIR /build
+
+RUN curl https://sh.rustup.rs -sSf | \
+    sh -s -- --default-toolchain stable -y
+
+ENV PATH=/root/.cargo/bin:$PATH
+
+RUN git clone https://github.com/zellij-org/zellij
+
+# Build zellij debian binary package
+FROM ubuntu:20.04 as zellij
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update -qq &&\
+    apt-get -y install build-essential &&\
+    apt-get -y install curl wget git libdbus-1-dev libpulse-dev libsensors-dev libnotmuch-dev libssl-dev pandoc dpkg
+
+WORKDIR /build
+
+RUN mkdir -p ./zellij_0.26.1-1_amd64/DEBIAN &&\
+    mkdir -p ./zellij_0.26.1-1_amd64/usr/bin &&\
+    mkdir -p ./zellij_0.26.1-1_amd64/usr/share &&\
+    mkdir -p ./zellij_0.26.1-1_amd64/usr/share/applications &&\
+    mkdir -p ./zellij_0.26.1-1_amd64/usr/share/man/man1 &&\
+    mkdir -p ./zellij_0.26.1-1_amd64/usr/share/icons/hicolor/scalable/apps/ &&\
+    mkdir -p ./zellij_0.26.1-1_amd64/usr/share/doc/zellij &&\
+    mkdir -p ./zellij_0.26.1-1_amd64/usr/share/zellij/layouts &&\
+    mkdir -p ./zellij_0.26.1-1_amd64/usr/share/zellij/plugins &&\
+    mkdir -p ./zellij_0.26.1-1_amd64/usr/share/bash-completion/completions &&\
+    mkdir -p ./zellij_0.26.1-1_amd64/usr/share/fish/vendor_completions.d &&\
+    mkdir -p ./zellij_0.26.1-1_amd64/usr/share/zsh/vendor-completions
+
+COPY --from=zellij-nix /home/nix/deb-single-zellij-bin-zellij/zellij-bin-zellij_1.0_amd64.deb .    
+
+RUN dpkg -i ./zellij-bin-zellij_1.0_amd64.deb &&\
+    cd /nix/store/*-zellij/share &&\
+    cp ./applications/zellij.desktop /build/zellij_0.26.1-1_amd64/usr/share/applications &&\
+    cp ./bash-completion/completions/zellij.bash /build/zellij_0.26.1-1_amd64/usr/share/bash-completion/completions &&\
+    cp ./fish/vendor_completions.d/zellij.fish /build/zellij_0.26.1-1_amd64/usr/share/fish/vendor_completions.d &&\
+    cp ./icons/hicolor/scalable/apps/zellij.png /build/zellij_0.26.1-1_amd64/usr/share/icons/hicolor/scalable/apps/ &&\
+    cp ./man/man1/zellij.1.gz /build/zellij_0.26.1-1_amd64/usr/share/man/man1 &&\
+    cp ./zsh/site-functions/_zellij /build/zellij_0.26.1-1_amd64/usr/share/zsh/vendor-completions &&\
+    apt remove -y zellij-bin-zellij &&\
+    cd /build &&\
+    wget https://github.com/zellij-org/zellij/releases/download/v0.26.1/zellij-x86_64-unknown-linux-musl.tar.gz -O "zellij-x86_64-unknown-linux-musl.tar.gz" &&\
+    ls -al . &&\
+    tar zxvf zellij-x86_64-unknown-linux-musl.tar.gz &&\
+    mv zellij zellij_0.26.1-1_amd64/usr/bin
+
+COPY zellij/control ./zellij_0.26.1-1_amd64/DEBIAN
+COPY --from=zellij-build /build/zellij/assets/plugins ./zellij_0.26.1-1_amd64/usr/share/zellij/plugins
+COPY --from=zellij-build /build/zellij/example/layouts ./zellij_0.26.1-1_amd64/usr/share/zellij/layouts
+COPY --from=zellij-build /build/zellij/LICENSE.md ./zellij_0.26.1-1_amd64/usr/share/doc/zellij
+COPY --from=zellij-build /build/zellij/GOVERNANCE.md ./zellij_0.26.1-1_amd64/usr/share/doc/zellij
+COPY --from=zellij-build /build/zellij/README.md ./zellij_0.26.1-1_amd64/usr/share/doc/zellij
+
+RUN cd /build &&\
+    chmod 755 ./zellij_0.26.1-1_amd64/usr/bin/zellij &&\
+    chmod 644 ./zellij_0.26.1-1_amd64/usr/share/applications/zellij.desktop &&\
+    chmod 644 ./zellij_0.26.1-1_amd64/usr/share/bash-completion/completions/zellij.bash &&\
+    chmod 644 ./zellij_0.26.1-1_amd64/usr/share/fish/vendor_completions.d/zellij.fish &&\
+    chmod 644 ./zellij_0.26.1-1_amd64/usr/share/icons/hicolor/scalable/apps/zellij.png &&\
+    chmod 644 ./zellij_0.26.1-1_amd64/usr/share/man/man1/zellij.1.gz &&\
+    chmod 644 ./zellij_0.26.1-1_amd64/usr/share/zsh/vendor-completions/_zellij &&\
+    chmod 644 ./zellij_0.26.1-1_amd64/usr/share/doc/zellij/*.md &&\
+    chmod 644 ./zellij_0.26.1-1_amd64/usr/share/zellij/plugins/*.wasm &&\
+    chmod 644 ./zellij_0.26.1-1_amd64/usr/share/zellij/layouts/*.yaml &&\
+    dpkg-deb --build --root-owner-group zellij_0.26.1-1_amd64
+
 
 FROM ubuntu:20.04 as final
 WORKDIR /packages
@@ -192,4 +271,4 @@ COPY --from=dust /build/dust/target/debian/du-dust_*.deb .
 COPY --from=exa /build/exa/target/debian/exa_*.deb .
 COPY --from=ripgrep /build/ripgrep/target/debian/ripgrep_*.deb .
 COPY --from=i3status /build/i3status-rust/target/debian/i3status-rs_*.deb .
-COPY --from=zellij /home/nix/deb-single-zellij-bin-zellij/zellij-bin-zellij_1.0_amd64.deb .
+COPY --from=zellij /build/zellij_0.26.1-1_amd64.deb .

@@ -1,0 +1,5 @@
+Package: zellij
+Version: 0.26.1
+Architecture: amd64
+Maintainer: Aram Drevekenin <aram@poor.dev>
+Description: A terminal workspace with batteries included
