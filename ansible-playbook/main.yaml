@@ -3,20 +3,34 @@
   connection: local
   name: "Install i3wm, rust applications, fonts"
 
+  vars:
+    local_home: "{{ lookup('env','HOME') }}"
+    local_user: "{{ lookup('env','USER') }}"
+    git_repo_path: "./"
+    deb_package_path: "./docker/packages"
   tasks:
 #
-# TODO: Do it later
-#  - name: "Install i3wm"
-#    include_tasks: i3wm.yaml
-#    become: true
-#
-#  TODO: Do it later
-#  - name: "Install rust applications"
-#    include_tasks: rust.yaml
-#    become: true
 
+  - name: "Install rust applications"
+    include_tasks: rust.yaml
+    become: true
+    loop:
+      - alacritty
+      - bat
+      - broot
+      - du-dust
+      - exa
+      - i3status-rs
+      - ripgrep
+      - zellij
+    loop_control:
+      index_var: package
+      
   - name: "Install nerdfonts"
     include_tasks: nerdfonts.yaml
 
   - name: "Install jetbrainsmonofonts"
     include_tasks: jetbrainsmonofonts.yaml
+
+  - name: "Install i3wm"
+    include_tasks: i3wm.yaml

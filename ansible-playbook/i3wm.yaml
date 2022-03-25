@@ -1,0 +1,92 @@
+---
+# Collection of rust applications are taken from here
+# https://www.linux.org.ru/forum/talks/15282317
+#
+- name: Configure alacritty
+  block:
+    - name: check alacritty config directory
+      ansible.builtin.file:
+        path: "{{ local_home }}/.config/alacritty"
+        state: directory
+        mode: '0775'
+
+    - name: copy file
+      ansible.builtin.copy:
+        src: "{{ git_repo_path }}/.config/alacritty/alacritty.yaml"
+        dest: "{{ local_home }}/.config/alacritty/alacritty.yaml"
+        mode: '0640'      
+
+- name: Configure i3
+  block:
+    - name: check i3 config directory
+      ansible.builtin.file:
+        path: "{{ local_home }}/.config/i3"
+        state: directory
+        mode: '0775'
+
+    - name: check i3 config bin directory
+      ansible.builtin.file:
+        path: "{{ local_home }}/.config/i3/bin"
+        state: directory
+        mode: '0775'
+
+    - name: copy config file
+      ansible.builtin.copy:
+        src: "{{ git_repo_path }}/.config/i3/config"
+        dest: "{{ local_home }}/.config/i3/config"
+        mode: '0640'      
+
+    - name: copy bin files
+      ansible.builtin.copy:
+        src: "{{ git_repo_path }}/.config/i3/bin/{{item}}"
+        dest: "{{ local_home }}/.config/i3/bin/{{item}}"
+        mode: '0750'      
+      loop:
+        - logout
+        - polybar
+        - rofi_app_launcher
+        - rofifinder
+        - s.sh
+
+- name: Configure i3status-rust
+  block:
+    - name: check i3status-rust config directory
+      ansible.builtin.file:
+        path: "{{ local_home }}/.config/i3status-rust"
+        state: directory
+        mode: '0775'
+
+   - name: copy config file
+      ansible.builtin.copy:
+        src: "{{ git_repo_path }}/.config/i3status-rust/config.toml"
+        dest: "{{ local_home }}/.config/i3status-rust/config.toml"
+        mode: '0640'      
+
+- name: Configure zellij
+  block:
+    - name: check user bin directory
+      ansible.builtin.file:
+        path: "{{ local_home }}/bin"
+        state: directory
+        mode: '0775'
+
+    - name: check zellij config directory
+      ansible.builtin.file:
+        path: "{{ local_home }}/.config/zellij"
+        state: directory
+        mode: '0775'
+
+    - name: copy config files
+      ansible.builtin.copy:
+        src: "{{ git_repo_path }}/.config/zellij/{{item}}"
+        dest: "{{ local_home }}/.config/zellij/{{item}}"
+        mode: '0640'      
+      loop:
+        - config.yaml
+        - layouts.yaml
+ 
+   - name: copy startup file to bin folder
+      ansible.builtin.copy:
+        src: "{{ git_repo_path }}/.config/zellij/zellij.sh"
+        dest: "{{ local_home }}/bin/zellij.sh"
+        mode: '0750'      
