@@ -23,10 +23,14 @@ tabs:
     parts:
       - direction: Horizontal
         split_size:
-          Percent: 33
+          Percent: 30
+        run:
+          plugin:
+            location: "file:/home/username/.local/share/zellij/plugins/pomodoro-clock.wasm"
+            _allow_exec_host_cmd: true
       - direction: Horizontal
         split_size:
-          Percent: 34
+          Percent: 35
       - direction: Horizontal
         split_size:
-          Percent: 33
+          Percent: 35

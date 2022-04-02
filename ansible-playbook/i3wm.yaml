@@ -76,6 +76,24 @@
         state: directory
         mode: '0775'
 
+    - name: check zellij local share directory
+      ansible.builtin.file:
+        path: "{{ local_home }}/.local/share/zellij"
+        state: directory
+        mode: '0775'
+
+    - name: check zellij local share directory
+      ansible.builtin.file:
+        path: "{{ local_home }}/.local/share/zellij/plugins"
+        state: directory
+        mode: '0775'
+
+    - name: Download pomodoro-clock plugin
+      ansible.builtin.get_url:
+        url: https://github.com/tw4452852/zellij-pomodoro-plugin/releases/download/v0.3.0/pomodoro-clock.wasm
+        dest: "{{ local_home }}/.local/share/zellij/plugins/pomodoro-clock.wasm"
+        mode: '0440'
+
     - name: copy config files
       ansible.builtin.copy:
         src: "{{ git_repo_path }}/.config/zellij/{{item}}"
