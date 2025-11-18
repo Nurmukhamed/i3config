@@ -2,6 +2,24 @@
 
 It's been a year since I switched to linux on my computer and laptop. The operating system is [Ubuntu 20.04](https://releases.ubuntu.com/20.04/), the window manager is [i3](https://i3wm.org/).
 
+## Updates from 2025.11
+Some packages now can be installed from apt-get. No need to build packages from sources.
+
+### dust
+
+Now we can install dust in Debian/Ubuntu.
+Please read [README.md](https://github.com/bootandy/dust).
+
+### exa -> eza
+
+exa was depricated and not maintained. eza is fork of exa.
+Please read [INSTALL.md](https://github.com/eza-community/eza/blob/main/INSTALL.md).
+
+### ripgrep
+
+Now we can install ripgrep in Debian/Ubuntu. 
+Please read [readme-ov-file](https://github.com/BurntSushi/ripgrep?tab=readme-ov-file#installation).
+
 ## Rust
 A number of [rust programs](https://www.linux.org.ru/forum/talks/15282317) are also used
 
@@ -9,7 +27,7 @@ A number of [rust programs](https://www.linux.org.ru/forum/talks/15282317) are a
 * [bat](https://github.com/sharkdp/bat)
 * [broot](https://dystroy.org/broot/)
 * [dust](https://github.com/bootandy/dust)
-* [exa](https://the.exa.website/)
+* [eza](https://github.com/eza-community/eza)
 * [rg](https://github.com/BurntSushi/ripgrep)
 * [starship](https://starship.rs/)
 * [i3status-rust](https://github.com/greshake/i3status-rust)
